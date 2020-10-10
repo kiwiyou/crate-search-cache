@@ -1,0 +1,12 @@
+[package]
+name = "crate-search-cache"
+version = "0.1.0"
+authors = ["kiwiyou <kiwiyou.dev@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+actix-web = "3.1.0"
+anyhow = "1.0.33"
+chrono = { version = "0.4.19", features = [ "serde" ] }
+serde = { version = "1.0.116", features = [ "derive" ] }
+sqlx = { version = "0.4.0-beta.1", default-features = false, features = [ "macros", "chrono", "runtime-tokio", "postgres" ] }

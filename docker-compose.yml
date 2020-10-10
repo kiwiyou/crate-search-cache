@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  dump:
+    image: postgres:13-alpine
+    volumes:
+      - dump_volume:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_PASSWORD: your_password
+    command: 'postgres -c max_wal_size=4GB'
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: example@pgadmin.com
+      PGADMIN_DEFAULT_PASSWORD: your_password
+    ports:
+      - '5555:80'
+    volumes:
+      - admin_volume:/var/lib/pgadmin
+  server:
+    build:
+      context: .
+    ports:
+      - '5556:8080'
+    environment:
+      DATABASE_HOST: dump
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: your_password
+
+volumes:
+  dump_volume: {}
+  admin_volume: {}
