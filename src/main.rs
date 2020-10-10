@@ -17,6 +17,7 @@ async fn main() {
         App::new()
             .data(db_pool.clone())
             .route("/{crate}", web::get().to(find_crate))
+            .route("/deps/{version}", web::get().to(dependencies))
     });
 
     server.bind("0.0.0.0:8080").unwrap().run().await.unwrap();
@@ -53,6 +54,7 @@ mod dependency_kind {
 
 #[derive(serde::Serialize)]
 struct FindCrateResponse {
+    version_id: i32,
     version: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
@@ -144,6 +146,7 @@ async fn find_crate(
                 _ => (n, b, d),
             });
     let result = FindCrateResponse {
+        version_id: version_info.id,
         version: version_info.num,
         description: crate_info.description,
         license: version_info.license,
@@ -157,4 +160,33 @@ async fn find_crate(
         dev_dependencies,
     };
     Ok(web::Json(result))
+}
+
+#[derive(serde::Serialize, sqlx::FromRow)]
+struct DependenciesItem {
+    name: String,
+    req: String,
+    optional: bool,
+    kind: i32,
+}
+
+async fn dependencies(
+    path: web::Path<i32>,
+    pool: web::Data<PgPool>,
+) -> Result<web::Json<Vec<DependenciesItem>>, SqlxError> {
+    sqlx::query_as(
+        "SELECT name, \
+                req, \
+                optional, \
+                kind \
+        FROM dependencies \
+        INNER JOIN crates \
+            ON dependencies.crate_id = crates.id \
+        WHERE version_id = $1",
+    )
+    .bind(*path)
+    .fetch_all(pool.as_ref())
+    .await
+    .map_err(SqlxError)
+    .map(web::Json)
 }
