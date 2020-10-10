@@ -5,6 +5,8 @@ use sqlx::{postgres::PgConnectOptions, PgPool};
 
 #[actix_web::main]
 async fn main() {
+    env_logger::init();
+
     let db_option = PgConnectOptions::new()
         .host(&env::var("DATABASE_HOST").unwrap())
         .username(&env::var("DATABASE_USER").unwrap())

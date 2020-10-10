@@ -27,6 +27,7 @@ services:
       DATABASE_HOST: dump
       DATABASE_USER: postgres
       DATABASE_PASSWORD: your_password
+      RUST_LOG: info
 
 volumes:
   dump_volume: {}
