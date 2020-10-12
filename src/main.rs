@@ -27,6 +27,7 @@ async fn main() {
 struct CrateInfo {
     id: i32,
     description: Option<String>,
+    downloads: i32,
     repository: Option<String>,
     documentation: Option<String>,
     homepage: Option<String>,
@@ -56,6 +57,7 @@ mod dependency_kind {
 struct FindCrateResponse {
     version_id: i32,
     version: String,
+    downloads: usize,
     #[serde(skip_serializing_if = "Option::is_none")]
     description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -148,6 +150,7 @@ async fn find_crate(
     let result = FindCrateResponse {
         version_id: version_info.id,
         version: version_info.num,
+        downloads: crate_info.downloads as usize,
         description: crate_info.description,
         license: version_info.license,
         crate_size: version_info.crate_size.map(|size| size as u32),
